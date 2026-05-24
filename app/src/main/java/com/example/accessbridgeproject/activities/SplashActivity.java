@@ -6,9 +6,13 @@ import android.os.Handler;
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.accessbridgeproject.R;
 import com.example.accessbridgeproject.activities.MainActivity;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
+import com.example.accessbridgeproject.utils.NetworkReceiver;
 
 public class SplashActivity extends AppCompatActivity {
-
+    private NetworkReceiver networkReceiver;
+    private IntentFilter intentFilter;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -22,5 +26,18 @@ public class SplashActivity extends AppCompatActivity {
                 finish();
             }
         }, 2000);
+        networkReceiver = new NetworkReceiver();
+        intentFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        registerReceiver(networkReceiver, intentFilter);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(networkReceiver);
     }
 }

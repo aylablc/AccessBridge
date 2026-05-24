@@ -14,9 +14,13 @@ import com.example.accessbridgeproject.adapters.InfoAdapter;
 import com.example.accessbridgeproject.models.InfoItem;
 import java.util.ArrayList;
 import java.util.List;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
+import com.example.accessbridgeproject.utils.NetworkReceiver;
 
 public class HealthActivity extends AppCompatActivity {
-
+    private NetworkReceiver networkReceiver;
+    private IntentFilter intentFilter;
     RecyclerView recyclerView;
     InfoAdapter adapter;
     List<InfoItem> itemList;
@@ -51,8 +55,21 @@ public class HealthActivity extends AppCompatActivity {
                 searchHealthFacilities(query);
             }
         });
+        networkReceiver = new NetworkReceiver();
+        intentFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        registerReceiver(networkReceiver, intentFilter);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(networkReceiver);
+    }
     private void searchHealthFacilities(String query) {
         progressBar.setVisibility(View.VISIBLE);
         // BURAYA Google Places API kodu gelecek

@@ -4,9 +4,13 @@ import android.os.Bundle;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.accessbridgeproject.R;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
+import com.example.accessbridgeproject.utils.NetworkReceiver;
 
 public class DetailActivity extends AppCompatActivity {
-
+    private NetworkReceiver networkReceiver;
+    private IntentFilter intentFilter;
     TextView tvTitle, tvDescription, tvToolbarTitle, btnBack;
 
     @Override
@@ -28,5 +32,19 @@ public class DetailActivity extends AppCompatActivity {
         tvTitle.setText(title);
         tvDescription.setText(description);
         tvToolbarTitle.setText(category);
+        networkReceiver = new NetworkReceiver();
+        intentFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        registerReceiver(networkReceiver, intentFilter);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(networkReceiver);
     }
 }

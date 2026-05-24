@@ -3,6 +3,8 @@ package com.example.accessbridgeproject.activities;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
@@ -12,11 +14,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.core.app.NotificationCompat;
 import com.example.accessbridgeproject.R;
+import com.example.accessbridgeproject.utils.NetworkReceiver;
 
 public class MainActivity extends AppCompatActivity {
 
     CardView cardHealth, cardLegal, cardTransport, cardEducation;
     private static final String CHANNEL_ID = "accessbridge_channel";
+    private NetworkReceiver networkReceiver;
+    private IntentFilter intentFilter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,16 +55,31 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(MainActivity.this, EducationActivity.class);
             startActivity(intent);
         });
+
+        networkReceiver = new NetworkReceiver();
+        intentFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        registerReceiver(networkReceiver, intentFilter);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(networkReceiver);
     }
 
     private void createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel(
                     CHANNEL_ID,
-                    "AccessBridge Bildirimleri",
+                    "AccessBridge Notifications",
                     NotificationManager.IMPORTANCE_DEFAULT
             );
-            channel.setDescription("AccessBridge uygulama bildirimleri");
+            channel.setDescription("AccessBridge app notifications");
             NotificationManager manager = getSystemService(NotificationManager.class);
             manager.createNotificationChannel(channel);
         }
@@ -68,8 +88,8 @@ public class MainActivity extends AppCompatActivity {
     private void showWelcomeNotification() {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setSmallIcon(R.mipmap.ic_launcher)
-                .setContentTitle("AccessBridge'e Hoş Geldiniz!")
-                .setContentText("Sağlık, hukuk, ulaşım ve eğitim bilgilerine ulaşın.")
+                .setContentTitle("Welcome to AccessBridge!")
+                .setContentText("Access health, legal, transport and education information.")
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setAutoCancel(true);
 
@@ -88,4 +108,11 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.menu_about) {
-            Toast.makeText(t
+            Toast.makeText(this,
+                    "AccessBridge v1.0 - Information platform for everyone",
+                    Toast.LENGTH_LONG).show();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+}

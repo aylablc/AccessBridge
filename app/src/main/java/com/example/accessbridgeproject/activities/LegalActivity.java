@@ -11,9 +11,13 @@ import com.example.accessbridgeproject.adapters.InfoAdapter;
 import com.example.accessbridgeproject.models.InfoItem;
 import java.util.ArrayList;
 import java.util.List;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
+import com.example.accessbridgeproject.utils.NetworkReceiver;
 
 public class LegalActivity extends AppCompatActivity {
-
+    private NetworkReceiver networkReceiver;
+    private IntentFilter intentFilter;
     RecyclerView recyclerView;
     InfoAdapter adapter;
     List<InfoItem> itemList;
@@ -42,8 +46,21 @@ public class LegalActivity extends AppCompatActivity {
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
+        networkReceiver = new NetworkReceiver();
+        intentFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        registerReceiver(networkReceiver, intentFilter);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(networkReceiver);
+    }
     private void loadLegalRights() {
         itemList.add(new InfoItem(
                 "Right to Health",
